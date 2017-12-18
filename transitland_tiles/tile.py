@@ -1,5 +1,7 @@
 from graphid import GraphID
 
+import transit_pb2
+
 class Tile(object):
     def __init__(self, level, tile, data=None):
         self.level = level
@@ -7,18 +9,20 @@ class Tile(object):
         self.index = {}
         self.message = self.load(data)
 
-    def load(data):
+    def load(self, data):
         if data:
-            message = decode(data)
+            message = self.decode(data)
         else:
-            message = None # new message
+            message = transit_pb2.Transit()
         return message
 
     def decode(self, data):
-        pass
+        message = transit_pb2.Transit()
+        message.ParseFromString(data)
+        return message
 
-    def encode(self, data):
-        pass
+    def encode(self):
+        return self.message.SerializeToString()
 
     def bbox(self):
         return GraphID.level_tile_to_bbox(self.level, self.tile)
