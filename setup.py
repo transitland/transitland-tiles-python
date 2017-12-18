@@ -11,9 +11,9 @@ setup(
   url='https://github.com/transitland/transitland-tiles-python',
   license='License :: OSI Approved :: MIT License',
   packages=['transitland_tiles'],
-  install_requires=['pytz'],
+  install_requires=['pytz', 'protobuf', 'nose'],
   # Include examples.
   package_data = {
-    '': ['*.txt', '*.md', '*.zip']
+    '': ['*.txt', '*.md', '*.proto']
   }
 )
