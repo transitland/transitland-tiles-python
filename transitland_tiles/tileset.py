@@ -20,11 +20,16 @@ class TileSet(object):
         pass
 
     def read_tile(self, level, tile):
-        fn = self._tile_path(level, tile)
-        if os.path.exists(fn):
-            return Tile.new(level, tile) # data=data
+        path = self._tile_path(level, tile)
+        if os.path.exists(path):
+            return Tile(level, tile, data=self._read_file(path))
         else:
-            return Tile.new(level, tile)
+            return Tile(level, tile)
+
+    def _read_file(self, path):
+        with open(path) as f:
+            data = f.read()
+        return data
 
     def find_all_tiles(self):
         all_tiles = []
@@ -43,7 +48,7 @@ class TileSet(object):
                 all_tiles.append((level, tile))
         return all_tiles
 
-    def _tile_path(level, tile, ext=None):
+    def _tile_path(self, level, tile, ext=None):
         # TODO: support multiple levels
         if ext:
             ext = ".pbf.%s"%ext
