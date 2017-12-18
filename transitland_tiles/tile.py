@@ -1,5 +1,4 @@
-from graphid import GraphID
-
+import graphid
 import transit_pb2
 
 class Tile(object):
@@ -25,4 +24,4 @@ class Tile(object):
         return self.message.SerializeToString()
 
     def bbox(self):
-        return GraphID.level_tile_to_bbox(self.level, self.tile)
+        return graphid.GraphID.level_tile_to_bbox(self.level, self.tile)
