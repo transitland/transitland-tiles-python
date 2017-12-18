@@ -30,8 +30,18 @@ class TileSet(object):
         all_tiles = []
         for root,dirs,files in os.walk(self.path):
             for f in files:
-                if f.ends_with('.pbf'):
-                    pass
+                if not f.endswith('.pbf'):
+                    continue
+                path = root.split(os.sep)
+                path.append(f[:-4])
+                if path[-4] == '2':
+                    level = 2
+                    tile = int(''.join(path[-3:]))
+                else:
+                    level = int(path[-4])
+                    tile = int(''.join(path[-3:]))
+                all_tiles.append((level, tile))
+        return all_tiles
 
     def _tile_path(level, tile, ext=None):
         # TODO: support multiple levels
