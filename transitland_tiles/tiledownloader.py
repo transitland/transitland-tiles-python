@@ -66,11 +66,11 @@ class TileDownloader(object):
         path = os.path.join(self.path, *key.split('/')[-4:])
         url = "http://%s.s3.amazonaws.com/%s"%(self.bucket, key) # display only
         if os.path.exists(path) and os.stat(path).st_size == size and size is not None:
-            print "%s -> %s (%0.2f MB; present)"%(url, path, size/1024.0**2)
+            print "%s -> %s (%0.2f MB; present)"%(url, path, size/1000.0**2)
             return
 
         if size is not None:
-            print "%s -> %s (%0.2f MB)"%(url, path, size/1024.0**2)
+            print "%s -> %s (%0.2f MB)"%(url, path, size/1000.0**2)
         else:
             print "%s -> %s "%(url, path)
 
