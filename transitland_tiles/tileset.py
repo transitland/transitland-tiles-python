@@ -10,7 +10,7 @@ class TileSet(object):
     def get_tile_by_lll(self, level, lat, lon):
         return self.get_tile_by_graphid(GraphID(level=level, lat=lat, lon=lon))
 
-    def get_tile_by_graphid(graphid):
+    def get_tile_by_graphid(self, graphid):
         return self.read_tile(graphid.level, graphid.tile)
 
     def write_tile(tile, ext=None):
