@@ -44,8 +44,8 @@ class GraphID(object):
         # if this is crossing the anti meridian split it up and combine
         left, bottom, right, top = bbox
         if left > right:
-            east = self.bbox_to_level_tiles((left, bottom, 180.0, top))
-            west = self.bbox_to_level_tiles((-180.0, bottom, right, top))
+            east = cls.bbox_to_level_tiles((left, bottom, 180.0, top))
+            west = cls.bbox_to_level_tiles((-180.0, bottom, right, top))
             return east + west
         #move these so we can compute percentages
         left += 180
