@@ -2,6 +2,7 @@ import argparse
 import collections
 import os
 import errno
+import sys
 
 import boto3
 import botocore
@@ -28,6 +29,18 @@ class TileDownloader(object):
         )
         self.s3_bucket = s3.Bucket(self.bucket)
 
+    def download_archive(self):
+        key = '%s/%s/tiles.tar.gz'%(self.prefix, self.date)
+        path = os.path.join(self.path, 'tiles.tar.gz')
+        # Get filesize
+        size = None
+        for f in self.s3_bucket.objects.filter(Prefix=key):
+            size = f.size
+        if size is None:
+            raise Exception('404: %s'%key)
+        # Downloda a single file
+        self._download(key, path, size=size)
+
     def download_bbox(self, bbox):
         tileids = GraphID.bbox_to_level_tiles(bbox)
         tileids = [b for a,b in tileids if a==2]
@@ -37,7 +50,9 @@ class TileDownloader(object):
         printcount = 50
         print "Looking for %s tiles..."%len(tileids)
         print "\t" + "\n\t".join(map(str, tileids[:printcount]))
-        if len(tileids) > printcount:
+        if len(tileids) > 10000:
+            print "\t... and %s more; consider using --archive"%(len(tileids)-printcount)
+        elif len(tileids) > printcount:
             print "\t... and %s more"%(len(tileids)-printcount)
 
         # Sort tiles into bucket prefixes
@@ -46,8 +61,6 @@ class TileDownloader(object):
             t = str(tileid).rjust(9, '0')
             key = '%s/%s/%s/%s/%s'%(self.prefix, self.date, 2, t[0:3], t[3:6])
             prefixes[key].append(tileid)
-
-        # print "Prefixes: %s"%(len(prefixes))
 
         # Check for tile presence and supplemental tiles and download
         for prefix, tileids in sorted(prefixes.items()):
@@ -60,10 +73,10 @@ class TileDownloader(object):
                     downloads.append([f.key, f.size])
 
             for key,size in downloads:
-                self._download(key, size=size)
+                path = os.path.join(self.path, *key.split('/')[-4:])
+                self._download(key, path, size=size)
 
-    def _download(self, key, size=None):
-        path = os.path.join(self.path, *key.split('/')[-4:])
+    def _download(self, key, path, size=None):
         url = "http://%s.s3.amazonaws.com/%s"%(self.bucket, key) # display only
         if os.path.exists(path) and os.stat(path).st_size == size and size is not None:
             print "%s -> %s (%0.2f MB; present)"%(url, path, size/1000.0**2)
@@ -79,7 +92,7 @@ class TileDownloader(object):
             self.s3_bucket.download_file(key, path)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
-                print("404: %s"%key)
+                print("%s: 404"%url)
             else:
                 raise
 
@@ -89,9 +102,23 @@ if __name__ == "__main__":
     parser.add_argument('--prefix', help='Prefix', default='tile-export')
     parser.add_argument('--date', help='Date', default='latest')
     parser.add_argument('--path', help='Output path', default='.')
-    parser.add_argument('--bbox', help='bbox', required=True)
+    parser.add_argument('--bbox', help='bbox')
+    parser.add_argument('--archive', help='Download entire archive', action='store_true')
+    parser.add_argument('tileids', help='Tile IDs', nargs='*')
     args = parser.parse_args()
 
-    bbox = [float(i) for i in args.bbox.split(',')]
     t = TileDownloader(bucket=args.bucket, prefix=args.prefix, date=args.date, path=args.path)
-    t.download_bbox(bbox)
+
+    if not any((args.archive, args.bbox, args.tileids)):
+        print "Must supply either --archive, --bbox, or a list of tileids"
+        sys.exit(0)
+
+    if args.archive:
+        t.download_archive()
+
+    if args.bbox:
+        bbox = [float(i) for i in args.bbox.split(',')]
+        t.download_bbox(bbox)
+
+    if args.tileids:
+        t.download(map(int, args.tileids))
