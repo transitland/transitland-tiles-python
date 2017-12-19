@@ -31,7 +31,7 @@ class TileDownloader(object):
 
     def download_archive(self):
         key = '%s/%s/tiles.tar.gz'%(self.prefix, self.date)
-        path = os.path.join(self.path, 'tiles.tar.gz')
+        path = os.path.join(self.path, 'transit.tar.gz')
         # Get filesize
         size = None
         for f in self.s3_bucket.objects.filter(Prefix=key):
