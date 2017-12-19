@@ -18,7 +18,7 @@ def makedirs(path):
             raise
 
 class TileDownloader(object):
-    def __init__(self, bucket='transit.land', prefix='tile-export', path='.', date=None):
+    def __init__(self, bucket='transit.land', prefix='tile-exports', path='.', date=None):
         self.bucket = bucket
         self.prefix = prefix
         self.path = path
@@ -99,7 +99,7 @@ class TileDownloader(object):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Download tiles')
     parser.add_argument('--bucket', help='Bucket', default='transit.land')
-    parser.add_argument('--prefix', help='Prefix', default='tile-export')
+    parser.add_argument('--prefix', help='Prefix', default='tile-exports')
     parser.add_argument('--date', help='Date', default='latest')
     parser.add_argument('--path', help='Output path', default='.')
     parser.add_argument('--bbox', help='bbox')
