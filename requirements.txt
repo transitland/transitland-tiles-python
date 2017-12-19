@@ -1,3 +1,4 @@
 pytz
 protobuf
 nose
+boto3

@@ -6,3 +6,4 @@ import graphid
 import shape7
 import tile
 import tileset
+import download
