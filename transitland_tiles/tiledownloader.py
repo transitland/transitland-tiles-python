@@ -61,13 +61,13 @@ class TileDownloader(object):
     def _download(self, key, size=None):
         path = os.path.join(*key.split('/')[-4:])
         if os.path.exists(path) and os.stat(path).st_size == size and size is not None:
-            print "%s -> %s (%0.2f MB; present)"%(key,path,size/1024.0**2)
+            print "http://%s/%s -> %s (%0.2f MB; present)"%(self.bucket, key, path, size/1024.0**2)
             return
 
         if size is not None:
-            print "%s -> %s (%0.2f MB)"%(key, path, size/1024.0**2)
+            print "http://%s/%s -> %s (%0.2f MB)"%(self.bucket, key, path, size/1024.0**2)
         else:
-            print "%s -> %s "%(key, path)
+            print "http://%s/%s -> %s "%(self.bucket, key, path)
 
         makedirs(os.path.dirname(path))
         try:
