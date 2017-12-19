@@ -33,6 +33,9 @@ class TileDownloader(object):
         self.download(tileids)
 
     def download(self, tileids):
+        print "Looking for tiles: %s"%len(tileids)
+        for tileid in tileids: print "\t%s"%tileid
+
         # Sort tiles into bucket prefixes
         prefixes = collections.defaultdict(list)
         for tileid in tileids:
@@ -40,8 +43,11 @@ class TileDownloader(object):
             key = '%s/%s/%s/%s/%s'%(self.prefix, self.date, 2, t[0:3], t[3:6])
             prefixes[key].append(tileid)
 
+        # print "Prefixes: %s"%(len(prefixes))
+
         # Check for tile presence and supplemental tiles and download
         for prefix, tileids in sorted(prefixes.items()):
+            print "prefix: ", prefix
             downloads = []
             for f in self.s3_bucket.objects.filter(Prefix=prefix).all():
                 p = ''.join(f.key.split('/')[-3:])
