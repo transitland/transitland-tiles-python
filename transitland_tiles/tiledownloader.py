@@ -34,8 +34,11 @@ class TileDownloader(object):
         self.download(tileids)
 
     def download(self, tileids):
-        print "Looking for tiles: %s"%len(tileids)
-        for tileid in tileids: print "\t%s"%tileid
+        printcount = 50
+        print "Looking for %s tiles..."%len(tileids)
+        print "\t" + "\n\t".join(map(str, tileids[:printcount]))
+        if len(tileids) > printcount:
+            print "\t... and %s more"%(len(tileids)-printcount)
 
         # Sort tiles into bucket prefixes
         prefixes = collections.defaultdict(list)
@@ -61,14 +64,15 @@ class TileDownloader(object):
 
     def _download(self, key, size=None):
         path = os.path.join(self.path, *key.split('/')[-4:])
+        url = "http://%s.s3.amazonaws.com/%s"%(self.bucket, key) # display only
         if os.path.exists(path) and os.stat(path).st_size == size and size is not None:
-            print "http://%s/%s -> %s (%0.2f MB; present)"%(self.bucket, key, path, size/1024.0**2)
+            print "%s -> %s (%0.2f MB; present)"%(url, path, size/1024.0**2)
             return
 
         if size is not None:
-            print "http://%s/%s -> %s (%0.2f MB)"%(self.bucket, key, path, size/1024.0**2)
+            print "%s -> %s (%0.2f MB)"%(url, path, size/1024.0**2)
         else:
-            print "http://%s/%s -> %s "%(self.bucket, key, path)
+            print "%s -> %s "%(url, path)
 
         makedirs(os.path.dirname(path))
         try:
