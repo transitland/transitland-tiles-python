@@ -1,4 +1,3 @@
-"""GraphID unit tests."""
 import unittest
 
 import shape7

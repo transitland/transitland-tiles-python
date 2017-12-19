@@ -1,4 +1,3 @@
-"""GraphID unit tests."""
 import unittest
 
 from graphid import GraphID
