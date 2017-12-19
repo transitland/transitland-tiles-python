@@ -53,15 +53,23 @@ class TileDownloader(object):
                 p = ''.join(f.key.split('/')[-3:])
                 t = int(p.split('.')[0])
                 if t in tileids:
-                    downloads.append(f.key)
+                    downloads.append([f.key, f.size])
 
-            for key in downloads:
-                self._download(key)
+            for key,size in downloads:
+                self._download(key, size=size)
 
-    def _download(self, key):
+    def _download(self, key, size=None):
         path = os.path.join(*key.split('/')[-4:])
+        if os.path.exists(path) and os.stat(path).st_size == size and size is not None:
+            print "%s -> %s (%0.2f MB; present)"%(key,path,size/1024.0**2)
+            return
+
+        if size is not None:
+            print "%s -> %s (%0.2f MB)"%(key, path, size/1024.0**2)
+        else:
+            print "%s -> %s "%(key, path)
+
         makedirs(os.path.dirname(path))
-        print "downloading %s to %s "%(key, path)
         try:
             self.s3_bucket.download_file(key, path)
         except botocore.exceptions.ClientError as e:
