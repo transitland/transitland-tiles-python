@@ -39,12 +39,13 @@ class GraphID(object):
         return [xmin, ymin, xmax, ymax]
 
     @classmethod
-    def bbox_to_level_tiles(cls, ymin, xmin, ymax, xmax):
+    def bbox_to_level_tiles(cls, bbox):
+        assert len(bbox) == 4
         # if this is crossing the anti meridian split it up and combine
-        left, bottom, right, top = ymin, xmin, ymax, xmax
+        left, bottom, right, top = bbox
         if left > right:
-            east = self.bbox_to_level_tiles(left, bottom, 180.0, top)
-            west = self.bbox_to_level_tiles(-180.0, bottom, right, top)
+            east = self.bbox_to_level_tiles((left, bottom, 180.0, top))
+            west = self.bbox_to_level_tiles((-180.0, bottom, right, top))
             return east + west
         #move these so we can compute percentages
         left += 180

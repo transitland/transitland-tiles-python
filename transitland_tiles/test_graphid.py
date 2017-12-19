@@ -37,7 +37,7 @@ class Test_GraphID(unittest.TestCase):
         assert graphid.index == 7
 
     def test_bbox_to_level_tiles(self):
-        level_tiles = GraphID.bbox_to_level_tiles(-74.251961, 40.512764, -73.755405, 40.903125)
+        level_tiles = GraphID.bbox_to_level_tiles((-74.251961, 40.512764, -73.755405, 40.903125))
         e = [
             [0, 2906],
             [1, 46905],
