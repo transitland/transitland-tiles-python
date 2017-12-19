@@ -1,3 +1,4 @@
+import argparse
 import collections
 import os
 import errno
@@ -19,12 +20,12 @@ class TileDownloader(object):
     def __init__(self, bucket='transit.land', prefix='tile-export', date=None):
         self.bucket = bucket
         self.prefix = prefix
-        self.date = date or '2017-12-03'
+        self.date = date or 'latest'
         s3 = boto3.resource(
             's3',
             config=botocore.client.Config(signature_version=botocore.UNSIGNED)
         )
-        self.s3_bucket = s3.Bucket(BUCKET_NAME)
+        self.s3_bucket = s3.Bucket(self.bucket)
 
     def download_bbox(self, bbox):
         tileids = GraphID.bbox_to_level_tiles(bbox)
@@ -62,3 +63,15 @@ class TileDownloader(object):
                 print("404: %s"%key)
             else:
                 raise
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Download tiles')
+    parser.add_argument('--bucket', help='Bucket', default='transit.land')
+    parser.add_argument('--prefix', help='Prefix', default='tile-export')
+    parser.add_argument('--date', help='Date', default='latest')
+    parser.add_argument('--bbox', help='bbox', required=True)
+    args = parser.parse_args()
+
+    bbox = [float(i) for i in args.bbox.split(',')]
+    t = TileDownloader(bucket=args.bucket, prefix=args.prefix, date=args.date)
+    t.download_bbox(bbox)
