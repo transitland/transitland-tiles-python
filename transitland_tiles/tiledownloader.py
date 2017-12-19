@@ -17,9 +17,10 @@ def makedirs(path):
             raise
 
 class TileDownloader(object):
-    def __init__(self, bucket='transit.land', prefix='tile-export', date=None):
+    def __init__(self, bucket='transit.land', prefix='tile-export', path='.', date=None):
         self.bucket = bucket
         self.prefix = prefix
+        self.path = path
         self.date = date or 'latest'
         s3 = boto3.resource(
             's3',
@@ -47,7 +48,7 @@ class TileDownloader(object):
 
         # Check for tile presence and supplemental tiles and download
         for prefix, tileids in sorted(prefixes.items()):
-            print "prefix: ", prefix
+            print "prefix:", prefix
             downloads = []
             for f in self.s3_bucket.objects.filter(Prefix=prefix).all():
                 p = ''.join(f.key.split('/')[-3:])
@@ -59,7 +60,7 @@ class TileDownloader(object):
                 self._download(key, size=size)
 
     def _download(self, key, size=None):
-        path = os.path.join(*key.split('/')[-4:])
+        path = os.path.join(self.path, *key.split('/')[-4:])
         if os.path.exists(path) and os.stat(path).st_size == size and size is not None:
             print "http://%s/%s -> %s (%0.2f MB; present)"%(self.bucket, key, path, size/1024.0**2)
             return
@@ -83,9 +84,10 @@ if __name__ == "__main__":
     parser.add_argument('--bucket', help='Bucket', default='transit.land')
     parser.add_argument('--prefix', help='Prefix', default='tile-export')
     parser.add_argument('--date', help='Date', default='latest')
+    parser.add_argument('--path', help='Output path', default='.')
     parser.add_argument('--bbox', help='bbox', required=True)
     args = parser.parse_args()
 
     bbox = [float(i) for i in args.bbox.split(',')]
-    t = TileDownloader(bucket=args.bucket, prefix=args.prefix, date=args.date)
+    t = TileDownloader(bucket=args.bucket, prefix=args.prefix, date=args.date, path=args.path)
     t.download_bbox(bbox)
